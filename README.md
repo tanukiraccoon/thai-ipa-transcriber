@@ -15,7 +15,7 @@ Thai IPA Transcriber is a Python script that allows you to convert Thai IPA (Int
 ```python
 from ipa_transcriber import IPA
 
-ipa = IPA(''pʰrɯk4') # พฤกษ์
+ipa = IPA('pʰrɯk4') # พฤกษ์
 
 # Accessing the IPA letters
 print(ipa.initial_en)    # Output: pʰ
