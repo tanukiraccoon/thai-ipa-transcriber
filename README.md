@@ -41,3 +41,4 @@ print(ipa.spell())       # Output: พรึก
 ## Limitation
 - The transcriber assumes a one-syllable input and may not handle multi-syllable transcriptions correctly.
 - If the Thai tone is Tone 3 (falling tone / เสียงโท) and the original word uses a high-class letter, this script will use a low-class letter for spelling. Please keep this in mind when using the transcriber.
+- When spelling the vowel sounds "aj" represented by the characters "ไ-" and "ใ-", the transcriber will use the characters "-ัย" instead.
