@@ -1,1 +1,2 @@
-from .main import *
+from .ipa_transcriber import *
+from .constants import *

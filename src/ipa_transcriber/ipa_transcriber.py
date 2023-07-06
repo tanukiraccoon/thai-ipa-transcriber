@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from constants import PATTERN, CONSONANTS, CLUSTERS, FINAL_CONSONANTS, MERGED_VOWELS, MIDDLE_C, TONES_MARK
+from .constants import PATTERN, CONSONANTS, CLUSTERS, FINAL_CONSONANTS, MERGED_VOWELS, MIDDLE_C, TONES_MARK
 
 class IPA:
     def __init__(self, ipa):

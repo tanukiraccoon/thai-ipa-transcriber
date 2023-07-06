@@ -1,5 +1,9 @@
+import os
+import sys
 import unittest
-from thai-ipa-transcriber import IPA
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
+from ipa_transcriber import IPA
 
 CASES ={
    "naːj1":"นาย",
