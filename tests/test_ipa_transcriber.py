@@ -1,6 +1,6 @@
 import unittest
 
-from src.ipa_transcriber import ThaiIPA
+from ipa_transcriber import ThaiIPA
 
 IPA_CASES_1 ={
    "naːj1":"นาย",
