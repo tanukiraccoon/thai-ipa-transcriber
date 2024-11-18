@@ -5,17 +5,17 @@ Thai IPA Transcriber is a Python script that allows you to convert Thai IPA (Int
 ## Usage
 
 1. Make sure you have Python installed on your system.
-2. Import the `IPA` class from `ipa_transcriber.py`
-3. Create an instance of the `IPA` class with a Thai IPA transcription of a single syllable as the input.
+2. Import the `ThaiIPA` class from `ipa_transcriber.py`
+3. Create an instance of the `ThaiIPA` class with a Thai IPA transcription of a single syllable as the input.
 4. Access the Thai spelling letters and other properties using the instance attributes.
 5. Use the `spell()` method to obtain the Thai word spelled with the Thai spelling letters.
 
 ## Example
 
 ```python
-from ipa_transcriber import IPA
+from ipa_transcriber import ThaiIPA
 
-ipa = IPA('pʰrɯk4') # พฤกษ์
+ipa = ThaiIPA('pʰrɯk4') # พฤกษ์
 
 # Accessing the IPA letters
 print(ipa.initial_en)    # Output: pʰ
