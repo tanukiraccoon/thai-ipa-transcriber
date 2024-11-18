@@ -1,117 +1,201 @@
 # -*- coding: utf-8 -*-
+import json
 
-from .constants import PATTERN, CONSONANTS, CLUSTERS, FINAL_CONSONANTS, MERGED_VOWELS, MIDDLE_C, TONES_MARK
+from constants import (
+    CONSONANT_CLUSTERS,
+    FINAL_CONSONANTS,
+    INITIAL_CONSONANTS,
+    PATTERN,
+    TONES_MARK,
+    VOWELS,
+)
 
-class IPA:
-    def __init__(self, ipa):
-        self.ipa = ipa
+class ThaiIPA:
+    def __init__(self, ipa: str = "pʰrɯk4"):
+        self.__ipa: str = ipa
+        if match := PATTERN.match(self.__ipa):
+            self.__extract_ipa(match)
+        else:
+            raise Exception(f"Unexpected IPA: {self.__ipa}.")
 
-        self.initial_en = ''
-        self.cluster_en = ''
-        self.vowel_en = ''
-        self.final_en = ''
-        self.tone = ''
+        self.__process()
 
-        self.parse_ipa()
+    def __extract_ipa(self, match):
+        (
+            self._initial_en,
+            self._cluster_en,
+            self._vowel_en,
+            self._final_en,
+            self._tone,
+        ) = match.groups()
+        self._tone = int(self._tone)
 
-        self.initial_th = ''
-        self.cluster_th = ''
-        self.vowel_th = ''
-        self.final_th = ''
-        self.tone_mark = ''
-        
-        self.dead_syl = False
-        self.long_vow = False
-        
-        self.process()
+    def __process(self):
+        self.__select_initial_th()
+        self.__select_cluster_th()
+        self.__select_vowel_th()
+        self.__select_final_th()
+        self.__select_tone_mark()
 
-    def process(self):
-        self.isLong()
-        self.isDead()
-        self.ipa_to_thai()
-        self.select_initial()
-        self.select_vowel()
-        self.select_tonemark()
-       
-    #แยกส่วนประกอบของ IPA
-    def parse_ipa(self):
-        match = PATTERN.match(self.ipa)
-        if match:
-            self.initial_en = match[1]
-            self.cluster_en = match[2]
-            self.vowel_en = match[3]
-            self.final_en = match[4]
-            self.tone= match[5]
-    
-    # สระเสียงสั้น เสียงยาว
-    def isLong(self):
-        # self.long_vow = 'ː' in self.ipa
-        self.long_vow = 'ː' in self.vowel_en
+    @property
+    def initial_en(self):
+        return self._initial_en
 
-    # คำเป็น คำตาย
-    def isDead(self):
-        self.dead_syl = self.final_en in ['k', 'p', 't'] or (not self.long_vow and not self.final_en)
+    @initial_en.setter
+    def initial_en(self, char):
+        self._initial_en = char
+        self.__process()
 
-    # Convert en to th char
-    def ipa_to_thai(self):
-        self.initial_th = CONSONANTS.get(self.initial_en, '')   
-        self.cluster_th = CLUSTERS.get(self.cluster_en, '')  
-        self.vowel_th = MERGED_VOWELS.get(self.vowel_en, '')  
-        self.final_th = FINAL_CONSONANTS.get(self.final_en, '')  
+    @property
+    def cluster_en(self):
+        return self._cluster_en
 
-    # เปลี่ยนเสียงเป็นรูป
-    def tone2mark(self,tone):
-        return TONES_MARK.get(tone, '')
+    @cluster_en.setter
+    def cluster_en(self, char):
+        self._cluster_en = char
+        self.__process()
 
-    # เลือกพยัญชนะต้น อักษรสูงกลางต่ำ ตามเสียงวรรณยุกต์
-    def select_initial(self):
-        if isinstance(self.initial_th, list): # เป็นอักษรสูง/ต่ำ
-            if self.tone in ['1','3','4']: # เสียงสามัญ/ตรีมีแค่อักษรต่ำ ยกเว้นเสียงโทมีทั้งคู่ เลือกใช้อักษรต่ำ => คัน1 คั่น3/ขั้น3 คั้น4 
-                self.initial_th = self.initial_th[0]
-            elif self.tone == '2': # เสียงเอก มีแค่อักษรสูง => ข่าน2 ขาด2 
-                self.initial_th = self.initial_th[1]
-            elif self.tone == '5': # เสียงจัตวามีทั้งคู่ แต่อักษรสูงมีแค่คำเป็น และอักษรต่ำมีแค่คำตาย => ขัน5 ค๋ะ5
-                self.initial_th = self.initial_th[0] if self.dead_syl else self.initial_th[1]
-                
+    @property
+    def vowel_en(self):
+        return self._vowel_en
 
-    # เลือกสระที่เขียนได้มากกว่า 1 แบบ ตามตัวสะกด
-    def select_vowel(self):
-        if isinstance(self.vowel_th, list):
-            if (self.vowel_en, self.final_en) in [('a', 'w'), ('ɤː', 'j')]: #สระ เอา เอย ลบตัวสะกดออก
-                self.vowel_th = self.vowel_th[2]
-                if self.final_en == 'w':
-                    self.final_th = ''
-            elif self.final_th: # เลือกรูปสระถ้ามีตัวสะกด
-                self.vowel_th = self.vowel_th[1]
+    @vowel_en.setter
+    def vowel_en(self, char):
+        self._vowel_en = char
+        self.__process()
+
+    @property
+    def final_en(self):
+        return self._final_en
+
+    @final_en.setter
+    def final_en(self, char):
+        self._final_en = char
+        self.__process()
+
+    @property
+    def tone(self):
+        return self._tone
+
+    @tone.setter
+    def tone(self, num):
+        self._tone = int(num)
+        self.__process()
+
+    @property
+    def is_long(self):
+        return "ː" in self._vowel_en
+
+    @property
+    def is_dead(self):
+        return self._final_en in ["k", "p", "t"] or (
+            not self.is_long and not self._final_en
+        )
+
+    @property
+    def is_open(self):
+        return not self._final_en
+
+    @property
+    def is_mid(self):
+        return len(INITIAL_CONSONANTS[self._initial_en]) == 1
+
+    def __select_initial_th(self):
+        if self.is_mid:
+            self.__initial_th = INITIAL_CONSONANTS[self._initial_en]
+        else:
+            self.__initial_th = self.__get_initial_th_by_tone()
+
+    def __get_initial_th_by_tone(self):
+        match self._tone:
+            case 1 | 3 | 4:
+                return INITIAL_CONSONANTS[self._initial_en][0]
+            case 2 | 5:
+                return INITIAL_CONSONANTS[self._initial_en][1]
+            case _:
+                raise Exception(
+                    f"Unexpected tone value: {self._tone}, IPA: {self._ipa} in function __select_initial_th"
+                )
+
+    def __select_cluster_th(self):
+        self.__cluster_th = CONSONANT_CLUSTERS.get(self._cluster_en, "")
+
+    def __select_vowel_th(self):
+        if (self._vowel_en, self._final_en) in [("a", "w"), ("ɤː", "j")]:
+            self.__vowel_th = VOWELS[self._vowel_en][2]
+        else:
+            self.__vowel_th = (
+                VOWELS[self._vowel_en][0] if self.is_open else VOWELS[self._vowel_en][1]
+            )
+
+    def __select_final_th(self):
+        if (self._vowel_en, self._final_en) == ("a", "w"):
+            self.__final_th = ""
+        else:
+            self.__final_th = FINAL_CONSONANTS.get(self._final_en, "")
+
+    def __select_tone_mark(self):
+        if self.is_mid:
+            if self.is_dead and self._tone == 2:
+                self.__tone_mark = TONES_MARK[1]
             else:
-                self.vowel_th = self.vowel_th[0]
+                self.__tone_mark = TONES_MARK[self._tone]
+        else:
+            self.__tone_mark = self.__get_tone_mark_by_initial()
 
-    # แปลงเสียงวรรณยุกต์ให้เป็นรูปวรรณยุกต์ อักษรสูงกลางต่ำ
-    def select_tonemark(self):
-        if self.initial_en in MIDDLE_C: # อักษรกลาง
-            if self.dead_syl and self.tone == '2': # คำตาย อักษรกลาง เสียงเอก ไม่ต้องใส่วรรณยุกต์ => กะ กาด
-                self.tone_mark = self.tone2mark('1')
-            else:
-                self.tone_mark = self.tone2mark(self.tone)
-        elif self.tone == '1': # เสียงสามัญ ไม่มีรูปวรรณยุกต์มีแค่อักษรต่ำ => คัน นัน
-            self.tone_mark = self.tone2mark(self.tone)
-        elif self.tone == '2': # เสียงเอก มีแค่อักษรสูง คำเป็นรูปเอก คำตายไม่มีรูป => ขั่น ข่าน ขะ ขาด
-            self.tone_mark = self.tone2mark('1') if self.dead_syl else self.tone2mark(self.tone)
-        elif self.tone == '3': # เสียงโท เลือกใช้อักษรต่ำ คำตายเสียงยาว ไม่มีรูป อื่นๆ รูปเอก 
-            self.tone_mark = self.tone2mark('1') if (self.dead_syl and self.long_vow) else self.tone2mark('2')
-        elif self.tone == '4': # เสียงตรี อักษรต่ำคำตายเสียงสั้น ไม่มีรูป อื่นๆ รูปโท
-            self.tone_mark = self.tone2mark('1') if (self.dead_syl and not self.long_vow)  else self.tone2mark('3')
-        elif self.tone == '5': # อักษรต่ำรูปจัตวา อักษรสูงไม่มีรูป
-            self.tone_mark = self.tone2mark(self.tone) if self.dead_syl else self.tone2mark('1')
-        
-                   
-    def ipa_components(self):
-        en = [self.ipa,self.initial_en,self.cluster_en,self.vowel_en,self.final_en,self.tone,self.dead_syl,self.long_vow,self.tone_mark]
-        th = [self.ipa,self.initial_th,self.cluster_th,self.vowel_th,self.final_th,self.tone,self.dead_syl,self.long_vow,self.tone_mark]
-        return [en, th]
-    
+    def __get_tone_mark_by_initial(self):
+        match self._tone:
+            case 1:
+                return TONES_MARK[self._tone]
+            case 2:
+                return TONES_MARK[1] if self.is_dead else TONES_MARK[self._tone]
+            case 3:
+                return (
+                    TONES_MARK[1] if (self.is_dead and self.is_long) else TONES_MARK[2]
+                )
+            case 4:
+                return (
+                    TONES_MARK[1]
+                    if (self.is_dead and not self.is_long)
+                    else TONES_MARK[3]
+                )
+            case 5:
+                return TONES_MARK[self._tone] if self.is_dead else TONES_MARK[1]
+            case _:
+                raise Exception(
+                    f"Unexpected tone value: {self._tone}, IPA: {self.ipa} in function __select_tone_mark"
+                )
+
     def spell(self):
-        s = self.vowel_th.replace('อ',self.initial_th + self.cluster_th,1) 
-        s = s.replace('-', self.tone_mark)
-        s = s + self.final_th
+        s = self.__initial_th + self.__cluster_th
+        s = self.__vowel_th.replace("อ", s, 1)
+        s = s.replace("-", self.__tone_mark)
+        s = s + self.__final_th
         return s
+
+    def get_components(self, lang=None, additional=False):
+        
+        addit = (self.is_long, self.is_dead, self.is_mid, self.is_open) if additional else ()
+        
+        en_components = (
+            self._initial_en,
+            self._cluster_en,
+            self._vowel_en,
+            self._final_en,
+            self._tone,
+        )
+
+        th_components = (
+            self.__initial_th,
+            self.__cluster_th,
+            self.__vowel_th,
+            self.__final_th,
+            self.__tone_mark,
+        )
+
+        if lang == "en":
+            return common_components + addit
+        elif lang == "th":
+            return thai_components + addit
+        else:
+            return [common_components + addit, thai_components + addit]

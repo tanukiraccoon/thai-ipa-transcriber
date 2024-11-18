@@ -1,35 +1,31 @@
 # -*- coding: utf-8 -*-
 import re
-
-CONSONANTS = {
+INITIAL_CONSONANTS = {
     'b': 'บ',
     'd': 'ด',
-    'f': ['ฟ', 'ฝ'],
-    'h': ['ฮ', 'ห'],
-    'j': ['ย', 'หย'],
+    'f': ('ฟ','ฝ'),
+    'h': ('ฮ','ห'),
+    'j': ('ย','หย'),
     'k': 'ก',
-    'kʰ': ['ค', 'ข'],
-    'l': ['ล', 'หล'],
-    'm': ['ม', 'หม'],
-    'n': ['น', 'หน'],
-    'ŋ': ['ง', 'หง'],
-    'pʰ': ['พ', 'ผ'],
+    'kʰ': ('ค','ข'),
+    'l': ('ล','หล'),
+    'm': ('ม','หม'),
+    'n': ('น','หน'),
+    'ŋ': ('ง','หง'),
+    'pʰ': ('พ','ผ'),
     'p': 'ป',
-    'r': ['ร', 'หร'],
-    's': ['ซ', 'ส'],
-    'tʰ': ['ท', 'ถ'],
+    'r': ('ร','หร'),
+    's': ('ซ','ส'),
+    'tʰ': ('ท','ถ'),
     'c': 'จ',
-    'cʰ': ['ช', 'ฉ'],
+    'cʰ': ('ช','ฉ'),
     't': 'ต',
-    'w': ['ว', 'หว'],
+    'w': ('ว','หว'),
     'ʔ': 'อ'
 }
 
-# HIGH_C = []
-MIDDLE_C = ['k','c','d','t','b','p','ʔ']
-# LOW_C = []
 
-CLUSTERS = {
+CONSONANT_CLUSTERS = {
     'l': 'ล',
     'r': 'ร',
     'w': 'ว'
@@ -46,68 +42,66 @@ FINAL_CONSONANTS = {
     'w': 'ว',
     'ʔ': 'อ'
 }
-
+        
 # '-' for tone marks
-VOWELS_SHORT = {
-    'ia': 'เอี-ยะ',
-    'a': ['อ-ะ', 'อั-', 'เอ-า'],
-    'e': ['เอ-ะ', 'เอ็-'],
-    'ɛ': ['แอ-ะ', 'แอ-'],
-    'i': 'อิ-',
-    'o': ['โอ-ะ', 'อ-'],
-    'ᴐ': ['เอ-าะ', 'อ็-อ'],
-    'u': 'อุ-',
-    'ɯ': 'อึ-',
-    'ɤ': 'เอ-อะ'
+# key: (open_syl, close_syl, exceptional_syl)
+SHORT_VOWELS = {
+    'a': ('อ-ะ', 'อั-' ,'เอ-า'),
+    'e': ('เอ-ะ', 'เอ็-'),
+    'ɛ': ('แอ-ะ', 'แอ็-'),
+    'i': ('อิ-', 'อิ-'),
+    'o': ('โอ-ะ', 'อ-'),
+    'ᴐ': ('เอ-าะ', 'อ็-อ'),
+    'u': ('อุ-', 'อุ-'),
+    'ɯ': ('อึ-', 'อึ-'),
+    'ɤ': ('เอ-อะ', 'เอ-อะ')
 }
 
-VOWELS_LONG = {
-    'iːa': 'เอี-ย',
-    'uːa': ['อั-ว', 'อ-ว'],
-    'ɯːa': 'เอื-อ',
-    'aː': 'อ-า',
-    'eː': 'เอ-',
-    'ɛː': 'แอ-',
-    'iː': 'อี-',
-    'oː': 'โอ-',
-    'ᴐː': 'อ-อ',
-    'uː': 'อู-',
-    'ɯː': ['อื-อ', 'อื-'],
-    'ɤː': ['เอ-อ', 'เอิ-', 'เอ-']
+LONG_VOWELS = {
+    'aː': ('อ-า','อ-า'),
+    'eː': ('เอ-','เอ-'),
+    'ɛː': ('แอ-','แอ-'),
+    'iː': ('อี-','อี-'),
+    'oː': ('โอ-','โอ-'),
+    'ᴐː': ('อ-อ','อ-อ'),
+    'uː': ('อู-','อู-'),
+    'ɯː': ('อื-อ', 'อื-'),
+    'ɤː': ('เอ-อ', 'เอิ-','เอ-')
+}
+DIPTHONGS = {
+    'ia': ('เอี-ยะ','เอี-ยะ'), # This sound does not exist in the Thai language.
+    'iːa': ('เอี-ย','เอี-ย'),
+    'ɯa': ('เอื-อะ','เอื-อะ'), # This sound does not exist in the Thai language.
+    'ɯːa': ('เอื-อ','เอื-อ'),
+    'ua': ('อั-วะ', 'อั-วะ'), # This sound does not exist in the Thai language.
+    'uːa': ('อั-ว', 'อ-ว'),
 }
 
 TONES_MARK = {
-    '1': '',
-    '2': '่',
-    '3': '้',
-    '4': '๊',
-    '5': '๋',
+    1: '',
+    2: '่',
+    3: '้',
+    4: '๊',
+    5: '๋',
 }
 
-# Compile the regex pattern
-consonant_patterns = sorted(CONSONANTS.keys(), key=len, reverse=True)
-cluster_patterns = sorted(CLUSTERS.keys(), key=len, reverse=True)
-MERGED_VOWELS = {**VOWELS_SHORT, **VOWELS_LONG}
-vowel_patterns = sorted(MERGED_VOWELS.keys(), key=len, reverse=True)
-tone_patterns = sorted(TONES_MARK.keys(), key=len, reverse=True)
+# Merging for all vowels type
+VOWELS = {**SHORT_VOWELS, **LONG_VOWELS, **DIPTHONGS}
 
-pattern_consonant = '|'.join(consonant_patterns)
-pattern_cluster = '|'.join(cluster_patterns)
-pattern_vowel = '|'.join(vowel_patterns)
-pattern_final_consonant = pattern_consonant
-pattern_tone = '|'.join(tone_patterns)
+# Sorting keys by length
+vowels_sort = sorted(VOWELS, key=len, reverse=True)
+initial_consonatns_sort = sorted(INITIAL_CONSONANTS, key=len, reverse=True)
+
+# Compile the regex pattern
+initial_consonants_pattern = '|'.join(initial_consonatns_sort)
+clusters_pattern = '|'.join(CONSONANT_CLUSTERS)
+vowels_pattern = '|'.join(vowels_sort)
+final_consonants_pattern = '|'.join(FINAL_CONSONANTS)
+tones_pattern = '|'.join(map(str, TONES_MARK))
 
 PATTERN = re.compile(
-    f"({pattern_consonant})([{pattern_cluster}]?)?({pattern_vowel})([{pattern_final_consonant}]?)?({pattern_tone})?"
+    f"({initial_consonants_pattern})([{clusters_pattern}]?)?({vowels_pattern})([{final_consonants_pattern}]?)?({tones_pattern})?"
 )
 
-PANGRAM1 = 'นายสังฆภัณฑ์เฮงพิทักษ์ฝั่งผู้เฒ่าซึ่งมีอาชีพเป็นฅนขายฃวดถูกตำรวจปฏิบัติการจับฟ้องศาลฐานลักนาฬิกาคุณหญิงฉัตรชฎาฌานสมาธิ'
-PANGRAM2 = 'เป็นมนุษย์สุดประเสริฐเลิศคุณค่ายังดีกว่าฝูงสัตว์เดรัจฉานจงฝ่าฟันพัฒนาวิชาการอย่าล้างผลาญฤาเข่นฆ่าบีฑาใครไม่ถือโทษโกรธแช่งซัดฮึดฮัดด่าหัดอภัยเหมือนกีฬาอัชฌาศัยปฏิบัติประพฤติกฎกำหนดใจพูดจาให้จ๊ะจ๋าน่าฟังเอย'
-
-
-    
-
-
-
-
-
+# THAI_PANGRAM1 = 'นายสังฆภัณฑ์เฮงพิทักษ์ฝั่งผู้เฒ่าซึ่งมีอาชีพเป็นฅนขายฃวดถูกตำรวจปฏิบัติการจับฟ้องศาลฐานลักนาฬิกาคุณหญิงฉัตรชฎาฌานสมาธิ'
+# THAI_PANGRAM2 = 'เป็นมนุษย์สุดประเสริฐเลิศคุณค่ายังดีกว่าฝูงสัตว์เดรัจฉานจงฝ่าฟันพัฒนาวิชาการอย่าล้างผลาญฤาเข่นฆ่าบีฑาใครไม่ถือโทษโกรธแช่งซัดฮึดฮัดด่าหัดอภัยเหมือนกีฬาอัชฌาศัยปฏิบัติประพฤติกฎกำหนดใจพูดจาให้จ๊ะจ๋าน่าฟังเอย'
