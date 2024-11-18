@@ -1,2 +1,2 @@
-from .ipa_transcriber import ThaiIPA
+from .ipa_transcriber import *
 from .constants import *
