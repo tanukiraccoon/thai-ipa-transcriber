@@ -81,6 +81,31 @@ class ThaiIPA:
     def tone(self, num):
         self._tone = int(num)
         self.__process()
+        
+    @property
+    def initial_th(self):
+        return self._initial_th
+
+    @property
+    def cluster_th(self):
+        return self._cluster_th
+
+    @property
+    def vowel_ht(self):
+        return self._vowel_th
+    
+    @property
+    def final_th(self):
+        return self._final_th
+
+    @property
+    def tone_mark(self):
+        return self._tone_mark
+
+    @tone.setter
+    def tone(self, num):
+        self._tone = int(num)
+        self.__process()
 
     @property
     def is_long(self):
@@ -102,9 +127,9 @@ class ThaiIPA:
 
     def __select_initial_th(self):
         if self.is_mid:
-            self.__initial_th = INITIAL_CONSONANTS[self._initial_en]
+            self._initial_th = INITIAL_CONSONANTS[self._initial_en]
         else:
-            self.__initial_th = self.__get_initial_th_by_tone()
+            self._initial_th = self.__get_initial_th_by_tone()
 
     def __get_initial_th_by_tone(self):
         match self._tone:
@@ -118,30 +143,30 @@ class ThaiIPA:
                 )
 
     def __select_cluster_th(self):
-        self.__cluster_th = CONSONANT_CLUSTERS.get(self._cluster_en, "")
+        self._cluster_th = CONSONANT_CLUSTERS.get(self._cluster_en, "")
 
     def __select_vowel_th(self):
         if (self._vowel_en, self._final_en) in [("a", "w"), ("ɤː", "j")]:
-            self.__vowel_th = VOWELS[self._vowel_en][2]
+            self._vowel_th = VOWELS[self._vowel_en][2]
         else:
-            self.__vowel_th = (
+            self._vowel_th = (
                 VOWELS[self._vowel_en][0] if self.is_open else VOWELS[self._vowel_en][1]
             )
 
     def __select_final_th(self):
         if (self._vowel_en, self._final_en) == ("a", "w"):
-            self.__final_th = ""
+            self._final_th = ""
         else:
-            self.__final_th = FINAL_CONSONANTS.get(self._final_en, "")
+            self._final_th = FINAL_CONSONANTS.get(self._final_en, "")
 
     def __select_tone_mark(self):
         if self.is_mid:
             if self.is_dead and self._tone == 2:
-                self.__tone_mark = TONES_MARK[1]
+                self._tone_mark = TONES_MARK[1]
             else:
-                self.__tone_mark = TONES_MARK[self._tone]
+                self._tone_mark = TONES_MARK[self._tone]
         else:
-            self.__tone_mark = self.__get_tone_mark_by_initial()
+            self._tone_mark = self.__get_tone_mark_by_initial()
 
     def __get_tone_mark_by_initial(self):
         match self._tone:
@@ -167,10 +192,10 @@ class ThaiIPA:
                 )
 
     def spell(self):
-        s = self.__initial_th + self.__cluster_th
-        s = self.__vowel_th.replace("อ", s, 1)
-        s = s.replace("-", self.__tone_mark)
-        s = s + self.__final_th
+        s = self._initial_th + self._cluster_th
+        s = self._vowel_th.replace("อ", s, 1)
+        s = s.replace("-", self._tone_mark)
+        s = s + self._final_th
         return s
 
     def get_components(self, lang=None, additional=False):
@@ -186,11 +211,11 @@ class ThaiIPA:
         )
 
         th_components = (
-            self.__initial_th,
-            self.__cluster_th,
-            self.__vowel_th,
-            self.__final_th,
-            self.__tone_mark,
+            self._initial_th,
+            self._cluster_th,
+            self._vowel_th,
+            self._final_th,
+            self._tone_mark,
         )
 
         if lang == "en":
