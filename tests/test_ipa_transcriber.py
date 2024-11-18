@@ -1,5 +1,10 @@
 import unittest
 
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
+
 from ipa_transcriber import ThaiIPA
 
 IPA_CASES_1 ={

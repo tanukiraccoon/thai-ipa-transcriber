@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 
-from constants import (
+from .constants import (
     CONSONANT_CLUSTERS,
     FINAL_CONSONANTS,
     INITIAL_CONSONANTS,
