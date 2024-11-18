@@ -1,0 +1,31 @@
+name: Python CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=$(pwd)/src" >> $GITHUB_ENV
+
+    - name: Run tests
+      run: |
+        python -m unittest discover tests  # Run all tests in the 'tests' folder
